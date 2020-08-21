@@ -1,0 +1,2 @@
+recursive-include jupyter_d3_widget/static *.*
+include jupyter_widget_d3.json
