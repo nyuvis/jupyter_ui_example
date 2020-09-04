@@ -4,7 +4,8 @@ Change log:
 - change HelloView and HelloModel to ScatterplotView and Scatterplot
 '''
 import ipywidgets as widgets
-from traitlets import Unicode, List
+from traitlets import Unicode, List, Int
+from traitlets import observe
 
 # See js/lib/example.js for the frontend counterpart to this file.
 
@@ -34,6 +35,15 @@ class Scatterplot(widgets.DOMWidget):
     # is automatically synced to the frontend *any* time it changes in Python.
     # It is synced back to Python from the frontend *any* time the model is touched.
     value = List([]).tag(sync=True)
+    clicked_dot = Int(-1).tag(sync=True)
+
+    clicked_value = {}
 
     def initialize(self, value):
         self.value = value
+        return self
+
+    @observe('clicked_dot')
+    def set_num_cluster(self, cluster_num):
+        self.clicked_value = self.value[self.clicked_dot]
+        return self

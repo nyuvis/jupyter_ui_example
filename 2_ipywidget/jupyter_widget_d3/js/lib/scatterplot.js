@@ -22,7 +22,7 @@ var margin = {top: 10, right: 30, bottom: 30, left: 60},
     height = 400 - margin.top - margin.bottom;
 var xScale, yScale;
 
-function create(that) {
+var create = function (that) {
     console.log('start create');
 
     // intialize the html
@@ -36,7 +36,7 @@ function create(that) {
     render(that);
 }
 
-function render(that) {
+var render = function(that) {
     console.log('start render');
     var svgElmt = that.el.getElementsByClassName('scatterplot-svg')[0];
     svgElmt.setAttribute('width', width + margin.left + margin.right);
@@ -71,11 +71,13 @@ function render(that) {
     render_scatterplot(that);
 }
 
-function render_scatterplot(that) {
+var render_scatterplot = function (that) {
     var svg = window.svg.select('#plot');
 
     //Read the data
-    data = that.model.get('value');
+    var data = that.model.get('value');
+
+    var clicked_dot = that.model.get('clicked_dot');
     // Add dots
     svg.append('g')
         .selectAll("circle")
@@ -86,6 +88,26 @@ function render_scatterplot(that) {
           .attr("cx", function (d) { return xScale(d.GrLivArea); } )
           .attr("cy", function (d) { return yScale(d.SalePrice); } )
           .attr("r", 1.5)
+          .attr("id", (d,i) => `dot-${i}`)
+          .style('fill', '#69b3a2')
+          .on('click', function () {
+                var id = d3.select(this)._groups[0][0].id;
+                var idx = +id.split('-')[1];
+                // Use D3 to select element, change color and size
+                if (clicked_dot == idx) {
+                    d3.select(this).style("fill", "#69b3a2");
+                    that.model.set({ 'clicked_dot': -1});
+                    clicked_dot = -1;
+                } else {
+                    d3.select(`#dot-${clicked_dot}`).style("fill", "#69b3a2");
+
+                    d3.select(this).style("fill", "orange");
+                    // change values
+                    that.model.set({ 'clicked_dot': idx});
+                    clicked_dot = idx;
+                }
+                that.touch();
+          })
 }
 
 var view = {
